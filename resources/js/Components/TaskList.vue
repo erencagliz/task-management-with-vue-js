@@ -37,6 +37,15 @@ const deleteTask = async (taskId) => {
     }
 };
 
+const updateTask = async (taskId) => {
+    try {
+        await axios.delete(`/api/tasks/${taskId}`);
+        tasks.value = tasks.value.filter((task) => task.id !== taskId);
+    } catch (error) {
+        console.error('An error occurred while deleting the task:', error);
+    }
+};
+
 onMounted(fetchTasks);
 </script>
 
@@ -90,6 +99,11 @@ onMounted(fetchTasks);
                                 <span class="xl:hidden">{{ task.title }}</span>
                                 <span class="hidden xl:inline">{{ task.title }}</span>
                             </span>
+                            <span class="ml-2 h-4 w-px bg-slate-300"></span>
+                            <select @change="updateTask(task.id)">
+                                <option value="pending">Pending</option>
+                                <option value="completed">Completed</option>
+                            </select>
                             <span class="ml-2 h-4 w-px bg-slate-300"></span>
                             <button @click="deleteTask(task.id)" class=" pointer-events-auto ml-2 rounded-md bg-indigo-600 px-3 py-2 text-[0.8125rem]/5 font-semibold text-white hover:bg-indigo-500">Delete</button>
                         </h2>
