@@ -37,12 +37,19 @@ const deleteTask = async (taskId) => {
     }
 };
 
-const updateTask = async (taskId) => {
+const updateTask = async (taskId, taskStatus) => {
     try {
-        await axios.delete(`/api/tasks/${taskId}`);
-        tasks.value = tasks.value.filter((task) => task.id !== taskId);
+        const response = await axios.put(`/api/tasks/${taskId}`, {
+            status: taskStatus === 'Pending' ? 'Completed' : 'Pending',
+        });
+        tasks.value = tasks.value.map((task) => {
+            if (task.id === taskId) {
+                return response.data;
+            }
+            return task;
+        });
     } catch (error) {
-        console.error('An error occurred while deleting the task:', error);
+        console.error('An error occurred while updating the task:', error);
     }
 };
 
@@ -89,7 +96,7 @@ onMounted(fetchTasks);
             <h2 class="text-xl font-semibold leading-tight text-gray-800">Task List</h2>
 
 
-            <ol class="mt-3 grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <ol class="mt-3 grid grid-cols-1 gap-8 lg:grid-cols-2">
                 <li class="flex" v-for="task in tasks" :key="task.id">
                     <div class="">
                         <h2 class="flex items-center text-sm/6 font-semibold">
@@ -100,10 +107,12 @@ onMounted(fetchTasks);
                                 <span class="hidden xl:inline">{{ task.title }}</span>
                             </span>
                             <span class="ml-2 h-4 w-px bg-slate-300"></span>
-                            <select @change="updateTask(task.id)">
-                                <option value="pending">Pending</option>
-                                <option value="completed">Completed</option>
-                            </select>
+                            <span class="ml-2 text-slate-900">
+                                <span class="xl:hidden">{{ task.status }}</span>
+                                <span class="hidden xl:inline">{{ task.status }}</span>
+                            </span>
+                            <span class="ml-2 h-4 w-px bg-slate-300"></span>
+                            <button @click="updateTask(task.id, task.status)" class=" pointer-events-auto ml-2 rounded-md bg-blue-600 px-3 py-2 text-[0.8125rem]/5 font-semibold text-white hover:bg-blue-500">Update</button>
                             <span class="ml-2 h-4 w-px bg-slate-300"></span>
                             <button @click="deleteTask(task.id)" class=" pointer-events-auto ml-2 rounded-md bg-indigo-600 px-3 py-2 text-[0.8125rem]/5 font-semibold text-white hover:bg-indigo-500">Delete</button>
                         </h2>
